@@ -3,6 +3,7 @@
 #include <vector>
 #include <omp.h>
 #include <fstream>
+#include <chrono>
 
 std::pair<double, double> pixelToComplex(int x, int y) {
 
@@ -42,6 +43,10 @@ int main() {
     std::vector<int> pixels(WIDTH * HEIGHT);
     std::vector<unsigned char> image(WIDTH * HEIGHT * 3);
 
+auto start = std::chrono::high_resolution_clock::now();
+
+#pragma omp parallel for schedule(static)
+
     for(int y = 0; y < HEIGHT; y++){
 
         for(int x = 0; x < WIDTH; x++){
@@ -60,6 +65,11 @@ int main() {
         }
     }
 
+auto end = std::chrono::high_resolution_clock::now();
+
+std::chrono::duration<double, std::milli> elapsed = end - start;
+
+std::cout << "Rendering time: " << elapsed.count() << " ms\n";
     for(int i = 0; i < WIDTH * HEIGHT; i++){
 
         int iterations = pixels[i];
