@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <omp.h>
+#include <fstream>
 
 std::pair<double, double> pixelToComplex(int x, int y) {
 
@@ -39,6 +40,7 @@ int main() {
     const int HEIGHT = 480;
     const int MAX_ITERATIONS = 500;
     std::vector<int> pixels(WIDTH * HEIGHT);
+    std::vector<unsigned char> image(WIDTH * HEIGHT * 3);
 
     for(int y = 0; y < HEIGHT; y++){
 
@@ -58,6 +60,43 @@ int main() {
         }
     }
 
+    for(int i = 0; i < WIDTH * HEIGHT; i++){
+
+        int iterations = pixels[i];
+
+        if(iterations  == MAX_ITERATIONS){
+            image[i*3] = 0;
+            image[i*3+1] = 0;
+            image[i*3+2] = 0;
+        }
+        else {
+            image[i*3] = iterations % 256;
+            image[i*3+1] = (iterations * 5) % 256;
+            image[i*3+2] = (iterations * 10) % 256;
+        }
+    }
+
+    std::ofstream out("julia.ppm", std::ios::binary);
+
+    if(!out.is_open()) {
+        std::cerr << "ERROR: Could not create julia.ppm\n";
+        return 1;
+    }
+
+    out << "P6\n" << WIDTH << " " << HEIGHT << "\n255\n";
+
+    out.write(
+        reinterpret_cast<const char*>(image.data()),
+        image.size()
+    );
+
+    if(!out.good()) {
+        std::cerr << "ERROR: Writing image failed\n";
+        return 1;
+    }
+
+    std::cout << "Image saved successfully!\n";
+    out.close();
     auto result = pixelToComplex(0, 0);
     std::cout << "Complex coordinates: "
               << result.first << ", "
