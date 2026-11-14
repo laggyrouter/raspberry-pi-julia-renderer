@@ -1,0 +1,3 @@
+julia_renderer
+*.pgm
+*.o
