@@ -1,3 +1,4 @@
 julia_renderer
 *.pgm
 *.o
+julia-gui/build/
