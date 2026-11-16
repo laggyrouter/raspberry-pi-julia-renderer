@@ -12,6 +12,8 @@ qt_standard_project_setup()
 
 qt_add_executable(julia_gui
     src/main.cpp
+    src/julia_renderer.cpp
+    src/julia_renderer.h
 )
 
 target_link_libraries(julia_gui PRIVATE 
