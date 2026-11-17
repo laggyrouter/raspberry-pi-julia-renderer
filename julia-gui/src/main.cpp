@@ -6,6 +6,7 @@
 #include <QPixmap>
 #include <QPushButton>
 #include <QSlider>
+#include <QAbstractSlider>
 #include <QHBoxLayout>
 #include <QMouseEvent>
 #include <functional>
@@ -63,7 +64,32 @@ int main(int argc, char *argv[])
 
     QLabel *zoomLabel = new QLabel("Zoom: 1.0x");
 
+    //morph controls
+    QSlider *realSlider = new QSlider(Qt::Horizontal);
+    realSlider->setRange(-2000, 2000);
+    realSlider->setValue(-800);
+
+    QSlider *imagSlider = new QSlider(Qt::Horizontal);
+    imagSlider->setRange(-2000, 2000);
+    imagSlider->setValue(156);
+
+    QLabel *realLabel = new QLabel("C Real: -0.800");
+    QLabel *imagLabel = new QLabel("C Imag: 0.156");
+
+    realLabel->setStyleSheet(
+    "color: #00e5ff; font-weight: bold;");
+    imagLabel->setStyleSheet(
+    "color: #00e5ff; font-weight: bold;");
+
     QHBoxLayout *controls = new QHBoxLayout();
+
+    QHBoxLayout *realControls = new QHBoxLayout();
+    realControls->addWidget(realLabel);
+    realControls->addWidget(realSlider);
+
+    QHBoxLayout *imagControls = new QHBoxLayout();
+    imagControls->addWidget(imagLabel);
+    imagControls->addWidget(imagSlider);
 
     controls->addWidget(zoomOutButton);
     controls->addWidget(zoomSlider);
@@ -109,6 +135,40 @@ int main(int argc, char *argv[])
         }
     );
 
+    QObject::connect(realSlider,
+    &QSlider::valueChanged,
+    &window, [&] (int value) {
+        params.cReal = value / 1000.0;
+        realLabel->setText(
+            QString("C Real: %1").arg(params.cReal, 0, 
+    'f', 3));
+    }
+    );
+
+    QObject::connect(imagSlider,
+    &QSlider::valueChanged,
+    &window, [&] (int value) {
+        params.cImag = value / 1000.0;
+        imagLabel->setText(
+            QString("C Imag: %1").arg(params.cImag, 0,
+    'f', 3));
+    }
+    );
+
+    QObject::connect(realSlider,
+    &QAbstractSlider::sliderReleased,
+    &window, [&] () {
+        updateFractal();
+    }
+    );
+
+    QObject::connect(imagSlider,
+    &QAbstractSlider::sliderReleased,
+    &window, [&] () {
+        updateFractal();
+    }
+    );
+
     QObject::connect(
         zoomInButton,
         &QPushButton::clicked,
@@ -140,6 +200,8 @@ int main(int argc, char *argv[])
     layout->addWidget(title);
     layout->addWidget(imageLabel);
     layout->addLayout(controls);
+    layout->addLayout(realControls);
+    layout->addLayout(imagControls);
 
     updateFractal();
 
